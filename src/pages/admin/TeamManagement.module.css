@@ -1,0 +1,306 @@
+/* TeamManagement.module.css */
+/* Modern, Premium, and Clean Design for Team Management */
+
+.container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #111827;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0;
+    letter-spacing: -0.025em;
+}
+
+.header p {
+    color: #6B7280;
+    margin: 0.5rem 0 0;
+    font-size: 1rem;
+}
+
+/* Grid Layout */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Premium Card Design */
+.card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 200px;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.04);
+    border-color: #D1D5DB;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.teamIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4F46E5;
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.05);
+}
+
+.memberCountBadge {
+    background: #F3F4F6;
+    color: #4B5563;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+}
+
+.teamName {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.teamDescription {
+    color: #6B7280;
+    font-size: 0.875rem;
+    margin: 0.25rem 0 1rem;
+}
+
+/* Avatar Pile */
+.avatarGroup {
+    display: flex;
+    align-items: center;
+    margin-top: auto;
+    margin-bottom: 1.5rem;
+    padding-left: 0.5rem;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #E5E7EB;
+    border: 2px solid #FFFFFF;
+    margin-left: -0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4B5563;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    position: relative;
+    /* transition: transform 0.2s; */
+}
+
+/* .avatar:hover {
+    transform: translateY(-2px);
+    z-index: 10;
+} */
+
+.avatarMore {
+    background: #F9FAFB;
+    color: #6B7280;
+    font-size: 0.75rem;
+}
+
+/* Card Actions */
+.cardActions {
+    display: flex;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid #F3F4F6;
+}
+
+/* Modal Styling */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(17, 24, 39, 0.6);
+    /* Darker backdrop */
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal {
+    background: #FFFFFF;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalHeader {
+    padding: 1.5rem;
+    border-bottom: 1px solid #F3F4F6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FAFAFA;
+}
+
+.modalHeader h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.modalContent {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh;
+}
+
+/* Tab/Section styling within modal */
+.modalSectionHeader {
+    padding: 1rem 1.5rem 0.5rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6B7280;
+    font-weight: 600;
+    background: #fff;
+    position: sticky;
+    top: 0;
+}
+
+.userList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.userItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid #F3F4F6;
+    transition: background 0.15s;
+}
+
+.userItem:hover {
+    background: #F9FAFB;
+}
+
+.userInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.userInfo h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #1F2937;
+}
+
+.userInfo p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #6B7280;
+}
+
+/* Search Bar in Modal */
+.modalSearch {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #E5E7EB;
+    background: #FFFFFF;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.modalSearch input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-left: 2.5rem;
+    /* Space for icon */
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.modalSearch input:focus {
+    outline: none;
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.emptyState {
+    padding: 2rem;
+    text-align: center;
+    color: #9CA3AF;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+        scale: 0.98;
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        scale: 1;
+    }
+}

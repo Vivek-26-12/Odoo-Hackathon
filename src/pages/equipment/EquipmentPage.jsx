@@ -3,6 +3,7 @@ import { useData } from '../../context/DataContext';
 import { Plus, Search, MapPin, Wrench } from 'lucide-react';
 import styles from './Equipment.module.css';
 import { useNavigate } from 'react-router-dom';
+import EquipmentModal from '../../components/equipment/EquipmentModal';
 
 const EquipmentCard = ({ equipment, requestCount }) => {
     const { getUserById } = useData();
@@ -61,14 +62,53 @@ const EquipmentCard = ({ equipment, requestCount }) => {
 const EquipmentPage = () => {
     const { equipment, getRequestsByEquipment } = useData();
     const [searchTerm, setSearchTerm] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const filteredEquipment = equipment.filter(eq =>
         eq.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         eq.serialNumber.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Calculate stats
+    const stats = {
+        total: equipment.length,
+        operational: equipment.filter(e => e.status === 'Operational').length,
+        down: equipment.filter(e => e.status === 'Down').length,
+        maintenance: equipment.filter(e => e.status === 'Maintenance').length,
+        scrapped: equipment.filter(e => e.status === 'Scrapped').length
+    };
+
     return (
         <div className={styles.pageContainer}>
+            {/* Stats Header */}
+            <div style={{
+                display: 'flex',
+                gap: '1rem',
+                padding: '1rem',
+                background: 'white',
+                borderRadius: '8px',
+                border: '1px solid #E5E7EB',
+                flexWrap: 'wrap'
+            }}>
+                <div style={{ flex: 1, minWidth: '150px' }}>
+                    <div style={{ fontSize: '0.875rem', color: '#6B7280', marginBottom: '0.25rem' }}>Total Equipment</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#111827' }}>{stats.total}</div>
+                </div>
+                <div style={{ flex: 1, minWidth: '150px' }}>
+                    <div style={{ fontSize: '0.875rem', color: '#6B7280', marginBottom: '0.25rem' }}>Operational</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10B981' }}>{stats.operational}</div>
+                </div>
+                <div style={{ flex: 1, minWidth: '150px' }}>
+                    <div style={{ fontSize: '0.875rem', color: '#6B7280', marginBottom: '0.25rem' }}>Down</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#EF4444' }}>{stats.down}</div>
+                </div>
+                <div style={{ flex: 1, minWidth: '150px' }}>
+                    <div style={{ fontSize: '0.875rem', color: '#6B7280', marginBottom: '0.25rem' }}>Maintenance</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#F59E0B' }}>{stats.maintenance}</div>
+                </div>
+            </div>
+
+            {/* Controls */}
             <div className={styles.controls}>
                 <div style={{ position: 'relative' }}>
                     <Search
@@ -84,21 +124,48 @@ const EquipmentPage = () => {
                         onChange={e => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <button className="btn btn-primary">
+                <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
                     <Plus size={18} />
                     <span>Add Equipment</span>
                 </button>
             </div>
 
+            {/* Equipment Grid */}
             <div className={styles.grid}>
-                {filteredEquipment.map(eq => (
-                    <EquipmentCard
-                        key={eq.id}
-                        equipment={eq}
-                        requestCount={getRequestsByEquipment(eq.id).length}
-                    />
-                ))}
+                {filteredEquipment.length > 0 ? (
+                    filteredEquipment.map(eq => (
+                        <EquipmentCard
+                            key={eq.id}
+                            equipment={eq}
+                            requestCount={getRequestsByEquipment(eq.id).length}
+                        />
+                    ))
+                ) : (
+                    <div className={styles.emptyState}>
+                        <Wrench size={48} color="#D1D5DB" style={{ marginBottom: '1rem' }} />
+                        <h3>No Equipment Found</h3>
+                        <p>
+                            {searchTerm
+                                ? `No equipment matches "${searchTerm}"`
+                                : 'Start by adding your first equipment'}
+                        </p>
+                        {!searchTerm && (
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => setIsModalOpen(true)}
+                                style={{ marginTop: '1rem' }}
+                            >
+                                <Plus size={18} />
+                                <span>Add Equipment</span>
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
+
+            {isModalOpen && (
+                <EquipmentModal onClose={() => setIsModalOpen(false)} />
+            )}
         </div>
     );
 };

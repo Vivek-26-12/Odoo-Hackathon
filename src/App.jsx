@@ -12,6 +12,8 @@ import AdminDashboard from './pages/dashboards/AdminDashboard';
 import ManagerDashboard from './pages/dashboards/ManagerDashboard';
 import TechnicianDashboard from './pages/dashboards/TechnicianDashboard';
 import EmployeeDashboard from './pages/dashboards/EmployeeDashboard';
+import UserManagementPage from './pages/admin/UserManagementPage';
+import TeamManagementPage from './pages/admin/TeamManagementPage';
 
 // Smart Dashboard Router - redirects to role-specific dashboard
 const DashboardRouter = () => {
@@ -61,6 +63,8 @@ function App() {
             <Route path="equipment" element={<EquipmentPage />} />
             <Route path="maintenance" element={<MaintenancePage />} />
             <Route path="calendar" element={<CalendarPage />} />
+            <Route path="users" element={<UserManagementPage />} />
+            <Route path="teams" element={<TeamManagementPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

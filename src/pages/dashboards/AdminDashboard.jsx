@@ -6,7 +6,7 @@ import { Package, Wrench, AlertCircle, CheckCircle, TrendingUp, Users } from 'lu
 import styles from './Dashboard.module.css';
 
 const AdminDashboard = () => {
-    const { equipment, requests, users, teams } = useData();
+    const { equipment, requests, users, teams, getUserById, getEquipmentById } = useData();
     const navigate = useNavigate();
 
     // Calculate stats
@@ -23,10 +23,7 @@ const AdminDashboard = () => {
     const totalTechnicians = users.filter(u => u.role === 'Technician').length;
     const totalTeams = teams.length;
 
-    // Recent activity
-    const recentRequests = [...requests]
-        .sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate))
-        .slice(0, 5);
+
 
     return (
         <div className={styles.dashboard}>
@@ -42,24 +39,28 @@ const AdminDashboard = () => {
                     value={totalEquipment}
                     icon={Package}
                     color="#3B82F6"
+                    onClick={() => navigate('/equipment')}
                 />
                 <StatCard
                     title="Open Requests"
                     value={openRequests}
                     icon={AlertCircle}
                     color="#F59E0B"
+                    onClick={() => navigate('/maintenance')}
                 />
                 <StatCard
                     title="Completed"
                     value={completedRequests}
                     icon={CheckCircle}
                     color="#10B981"
+                    onClick={() => navigate('/maintenance')}
                 />
                 <StatCard
                     title="Overdue"
                     value={overdueRequests}
                     icon={Wrench}
                     color="#EF4444"
+                    onClick={() => navigate('/maintenance')}
                 />
             </div>
 
@@ -70,24 +71,28 @@ const AdminDashboard = () => {
                     value={operationalEquipment}
                     icon={TrendingUp}
                     color="#8B5CF6"
+                    onClick={() => navigate('/equipment')}
                 />
                 <StatCard
                     title="Down Equipment"
                     value={downEquipment}
                     icon={AlertCircle}
                     color="#EF4444"
+                    onClick={() => navigate('/equipment')}
                 />
                 <StatCard
                     title="Technicians"
                     value={totalTechnicians}
                     icon={Users}
                     color="#06B6D4"
+                    onClick={() => navigate('/users')}
                 />
                 <StatCard
                     title="Teams"
                     value={totalTeams}
                     icon={Users}
                     color="#EC4899"
+                    onClick={() => navigate('/teams')}
                 />
             </div>
 
@@ -107,35 +112,18 @@ const AdminDashboard = () => {
                         <CheckCircle size={18} />
                         <span>Schedule Maintenance</span>
                     </button>
+                    <button className="btn btn-primary" onClick={() => navigate('/users')}>
+                        <Users size={18} />
+                        <span>Manage Users</span>
+                    </button>
+                    <button className="btn btn-primary" onClick={() => navigate('/teams')}>
+                        <Users size={18} />
+                        <span>Manage Teams</span>
+                    </button>
                 </div>
             </div>
 
-            {/* Recent Activity */}
-            <div className={styles.section}>
-                <h2>Recent Requests</h2>
-                <div className={styles.activityList}>
-                    {recentRequests.map(req => (
-                        <div key={req.id} className={styles.activityItem}>
-                            <div className={styles.activityIcon} style={{
-                                backgroundColor: req.status === 'New' ? '#FEF3C7' :
-                                    req.status === 'In Progress' ? '#DBEAFE' :
-                                        req.status === 'Repaired' ? '#D1FAE5' : '#FEE2E2'
-                            }}>
-                                <Wrench size={16} />
-                            </div>
-                            <div className={styles.activityContent}>
-                                <p className={styles.activityTitle}>{req.subject}</p>
-                                <p className={styles.activityMeta}>
-                                    Status: <strong>{req.status}</strong> • Priority: {req.priority}
-                                </p>
-                            </div>
-                            <span className={`${styles.statusBadge} ${styles[`status${req.status.replace(' ', '')}`]}`}>
-                                {req.status}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-            </div>
+
         </div>
     );
 };

@@ -14,8 +14,8 @@ const RequestDetailModal = ({ request, onClose }) => {
     const requester = getUserById(request.requesterId);
     const technician = request.technicianId ? getUserById(request.technicianId) : null;
 
-    // Get team members for assignment dropdown
-    const teamMembers = users.filter(u => u.teamId === request.teamId && u.role === 'Technician');
+    // Get all technicians for assignment dropdown
+    const availableTechnicians = users.filter(u => u.role === 'Technician');
 
     const handleStatusChange = (newStatus) => {
         if (newStatus === 'Repaired' && !duration) {
@@ -31,7 +31,7 @@ const RequestDetailModal = ({ request, onClose }) => {
             alert('Please select a technician');
             return;
         }
-        updateRequestStatus(request.id, request.status, { assignedTechnicianId: assignedTech });
+        updateRequestStatus(request.id, request.status, { technicianId: assignedTech });
         onClose();
     };
 
@@ -118,8 +118,8 @@ const RequestDetailModal = ({ request, onClose }) => {
                                     className={styles.select}
                                 >
                                     <option value="">Select Technician...</option>
-                                    {teamMembers.map(tech => (
-                                        <option key={tech.id} value={tech.id}>{tech.name}</option>
+                                    {availableTechnicians.map(tech => (
+                                        <option key={tech.id} value={tech.id}>{tech.name} ({tech.teamId ? getTeamById(tech.teamId)?.name : 'No Team'})</option>
                                     ))}
                                 </select>
                                 <button className="btn btn-primary" onClick={handleAssign}>

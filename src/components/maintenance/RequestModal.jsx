@@ -3,7 +3,7 @@ import { useData } from '../../context/DataContext';
 import styles from './RequestModal.module.css';
 
 const RequestModal = ({ onClose, initialEquipmentId, initialDate }) => {
-    const { createRequest, equipment, teams } = useData();
+    const { createRequest, equipment, teams, users } = useData();
 
     // Format helper
     const formatDate = (date) => {
@@ -19,7 +19,8 @@ const RequestModal = ({ onClose, initialEquipmentId, initialDate }) => {
         type: initialDate ? 'Preventive' : 'Corrective',
         priority: 'Medium',
         description: '',
-        scheduledDate: formatDate(initialDate)
+        scheduledDate: formatDate(initialDate),
+        technicianId: ''
     });
 
     // Effect to auto-fill team if initialEquipmentId is provided
@@ -39,7 +40,8 @@ const RequestModal = ({ onClose, initialEquipmentId, initialDate }) => {
 
     // Handle equipment change manually if user changes it
     const handleEquipmentChange = (e) => {
-        const eqId = parseInt(e.target.value);
+        const val = e.target.value;
+        const eqId = val ? parseInt(val) : '';
         const selectedEq = equipment.find(eq => eq.id === eqId);
 
         setFormData(prev => ({
@@ -54,6 +56,9 @@ const RequestModal = ({ onClose, initialEquipmentId, initialDate }) => {
         e.preventDefault();
         createRequest({
             ...formData,
+            equipmentId: parseInt(formData.equipmentId),
+            teamId: parseInt(formData.teamId),
+            scheduledDate: formData.scheduledDate ? formData.scheduledDate : null,
             status: 'New'
         });
         onClose();
@@ -140,6 +145,19 @@ const RequestModal = ({ onClose, initialEquipmentId, initialDate }) => {
                                 <option value="">Select Team...</option>
                                 {teams.map(t => (
                                     <option key={t.id} value={t.id}>{t.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <label>Assign Technician (Optional)</label>
+                            <select
+                                value={formData.technicianId || ''}
+                                onChange={e => setFormData({ ...formData, technicianId: e.target.value ? parseInt(e.target.value) : null })}
+                            >
+                                <option value="">Unassigned</option>
+                                {users.filter(u => u.role === 'Technician').map(tech => (
+                                    <option key={tech.id} value={tech.id}>{tech.name}</option>
                                 ))}
                             </select>
                         </div>

@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { useNavigate } from 'react-router-dom';
 import StatCard from '../../components/dashboard/StatCard';
-import { Wrench, Clock, CheckCircle, Calendar } from 'lucide-react';
+import { Wrench, Clock, CheckCircle, Calendar, Plus } from 'lucide-react';
 import styles from './Dashboard.module.css';
+import RequestModal from '../../components/maintenance/RequestModal';
 
 const TechnicianDashboard = () => {
     const { requests, equipment, currentUser } = useData();
     const navigate = useNavigate();
+    const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
     // Filter requests assigned to current technician
     const myRequests = requests.filter(r => r.technicianId === currentUser?.id);
@@ -60,6 +62,10 @@ const TechnicianDashboard = () => {
             <div className={styles.section}>
                 <h2>Quick Actions</h2>
                 <div className={styles.actionsGrid}>
+                    <button className="btn btn-primary" onClick={() => setIsRequestModalOpen(true)}>
+                        <Plus size={18} />
+                        <span>Create Request</span>
+                    </button>
                     <button className="btn btn-primary" onClick={() => navigate('/maintenance')}>
                         <Wrench size={18} />
                         <span>View My Requests</span>
@@ -141,6 +147,11 @@ const TechnicianDashboard = () => {
                     <p className={styles.emptyState}>No active requests assigned to you</p>
                 )}
             </div>
+            {isRequestModalOpen && (
+                <RequestModal
+                    onClose={() => setIsRequestModalOpen(false)}
+                />
+            )}
         </div>
     );
 };

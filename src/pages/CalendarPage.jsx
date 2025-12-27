@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, format, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
-import styles from './Calendar.module.css'; // We'll create this
+import styles from './Calendar.module.css';
 import RequestModal from '../components/maintenance/RequestModal';
+import PreventiveMaintenanceModal from '../components/maintenance/PreventiveMaintenanceModal';
 
 const CalendarPage = () => {
     const { requests } = useData();
     const [currentMonth, setCurrentMonth] = useState(new Date());
-    const [selectedDate, setSelectedDate] = useState(null); // For future "Add Event" modal
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
 
     const preventiveRequests = requests.filter(r =>
         r.type === 'Preventive' && r.scheduledDate
@@ -35,8 +37,8 @@ const CalendarPage = () => {
                     <h2>{format(currentMonth, 'MMMM yyyy')}</h2>
                     <button onClick={nextMonth} className="btn"><ChevronRight size={20} /></button>
                 </div>
-                <button className="btn btn-primary" onClick={() => alert('Feature: Open Schedule Modal')}>
-                    <PlusIcon /> Schedule Maintenance
+                <button className="btn btn-primary" onClick={() => setIsScheduleModalOpen(true)}>
+                    <PlusIcon /> Plan Maintenance
                 </button>
             </div>
 
@@ -66,6 +68,11 @@ const CalendarPage = () => {
                     );
                 })}
             </div>
+            {isScheduleModalOpen && (
+                <PreventiveMaintenanceModal
+                    onClose={() => setIsScheduleModalOpen(false)}
+                />
+            )}
             {selectedDate && (
                 <RequestModal
                     onClose={() => setSelectedDate(null)}
