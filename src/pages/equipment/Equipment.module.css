@@ -1,0 +1,150 @@
+.pageContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    height: 100%;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.searchBar {
+    width: 300px;
+    padding: 0.625rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.searchBar:focus {
+    outline: 2px solid var(--color-primary);
+    border-color: transparent;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    overflow-y: auto;
+    padding-bottom: 2rem;
+}
+
+.card {
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary-dark);
+}
+
+.cardHeader {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+    background-color: #F9FAFB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cardHeader h3 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.statusIndicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.statusOperational {
+    background-color: var(--color-success);
+}
+
+.statusDown {
+    background-color: var(--color-danger);
+}
+
+.statusMaintenance {
+    background-color: var(--color-warning);
+}
+
+.cardContent {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.dataRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+}
+
+.label {
+    color: var(--color-text-muted);
+}
+
+.value {
+    font-weight: 500;
+}
+
+.techInfo {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.techAvatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+
+.cardActions {
+    padding: 1rem;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.smartButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: white;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.smartButton:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background-color: #EEF2FF;
+}
+
+/* Modal Form Styles (Reuse mostly from Kanban, but maybe specific tweaks) */
+/* ... Reuse .modalOverlay etc from global or copied ... */

@@ -1,0 +1,144 @@
+.layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--color-bg-app);
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 260px;
+    background-color: var(--color-bg-surface);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    color: var(--color-primary);
+}
+
+.logoIcon {
+    stroke-width: 2.5px;
+}
+
+.logo h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    letter-spacing: -0.025em;
+}
+
+.nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.navGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.groupLabel {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    padding-left: 0.75rem;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.navItem:hover {
+    background-color: var(--color-bg-app);
+    color: var(--color-text-main);
+}
+
+.navItem.active {
+    background-color: var(--color-primary);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.footer {
+    border-top: 1px solid var(--color-border);
+    padding-top: 1rem;
+}
+
+.logoutBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    text-align: left;
+}
+
+.logoutBtn:hover {
+    color: var(--color-danger);
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.header {
+    height: 64px;
+    background-color: var(--color-bg-surface);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+}
+
+.pageTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.userProfile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.userProfile img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+}

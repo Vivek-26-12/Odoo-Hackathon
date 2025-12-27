@@ -1,0 +1,244 @@
+.boardContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 1rem;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+}
+
+.board {
+    display: flex;
+    gap: 1.5rem;
+    height: 100%;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
+.column {
+    flex: 1;
+    min-width: 280px;
+    max-width: 350px;
+    background-color: var(--color-bg-app);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid var(--color-border);
+}
+
+.columnHeader {
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #F9FAFB;
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+}
+
+.countBadge {
+    background-color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    border: 1px solid var(--color-border);
+}
+
+.columnContent {
+    flex: 1;
+    padding: 0.75rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Card Styles */
+.card {
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+    user-select: none;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--color-primary);
+}
+
+.card:active {
+    cursor: grabbing;
+    transform: scale(0.98);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.cardTitle {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--color-text-main);
+}
+
+.priorityBadge {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.priorityHigh {
+    background-color: var(--color-danger);
+}
+
+.priorityMedium {
+    background-color: var(--color-warning);
+}
+
+.priorityLow {
+    background-color: var(--color-success);
+}
+
+.cardMeta {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.equipmentName {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.cardFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.5rem;
+}
+
+.assignee {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.assignee img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+
+.overdue {
+    border-left: 4px solid var(--color-danger);
+}
+
+/* Add New Request Modal */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+    backdrop-filter: blur(2px);
+}
+
+.modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    width: 500px;
+    max-width: 90vw;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+}
+
+.modalHeader {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modalHeader h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.modalContent {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.formGroup label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-main);
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+    padding: 0.625rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+    outline: 2px solid var(--color-primary);
+    border-color: transparent;
+}
+
+.modalFooter {
+    padding: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
