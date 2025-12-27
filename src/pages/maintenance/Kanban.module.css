@@ -111,6 +111,11 @@
     background-color: var(--color-danger);
 }
 
+.priorityCritical {
+    background-color: #DC2626;
+    box-shadow: 0 0 0 2px #FEE2E2;
+}
+
 .priorityMedium {
     background-color: var(--color-warning);
 }

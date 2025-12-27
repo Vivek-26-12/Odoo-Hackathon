@@ -7,10 +7,23 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+**/node_modules
+
+# Build outputs
 dist
 dist-ssr
+build
 *.local
+
+# Environment variables (IMPORTANT - keeps sensitive data safe)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+**/.env
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +35,17 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# OS Files
+Thumbs.db
+.DS_Store
+
+# Database
+*.sqlite
+*.db
+
+# Cache
+.cache
+.parcel-cache
+.npm
+.eslintcache

@@ -64,7 +64,8 @@ router.get('/requests', (req, res) => {
     const sql = `
         SELECT r.request_id as id, r.subject, r.description, r.request_type as type,
         r.status, r.priority, r.created_at as createdDate, r.scheduled_date, 
-        r.duration_hours, r.equipment_id, r.maintenance_team_id as teamId, r.assigned_technician_id as technicianId
+        r.duration_hours, r.equipment_id, r.maintenance_team_id as teamId, 
+        r.assigned_technician_id as technicianId, r.requester_id as requesterId
         FROM maintenance_requests r
     `;
     db.query(sql, (err, results) => {
@@ -98,11 +99,54 @@ router.post('/requests', (req, res) => {
 });
 
 router.put('/requests/:id', (req, res) => {
-    const { status, durationHours } = req.body;
-    const sql = 'UPDATE maintenance_requests SET status = ?, duration_hours = ? WHERE request_id = ?';
-    db.query(sql, [status, durationHours || 0, req.params.id], (err, result) => {
+    const { status, durationHours, assignedTechnicianId } = req.body;
+
+    // First, get the request to find equipment_id
+    db.query('SELECT equipment_id FROM maintenance_requests WHERE request_id = ?', [req.params.id], (err, rows) => {
         if (err) return res.status(500).json(err);
-        res.json({ success: true });
+
+        const equipmentId = rows[0]?.equipment_id;
+
+        // Update the request
+        const updateFields = [];
+        const updateValues = [];
+
+        if (status) {
+            updateFields.push('status = ?');
+            updateValues.push(status);
+        }
+        if (durationHours !== undefined) {
+            updateFields.push('duration_hours = ?');
+            updateValues.push(durationHours);
+        }
+        if (assignedTechnicianId !== undefined) {
+            updateFields.push('assigned_technician_id = ?');
+            updateValues.push(assignedTechnicianId);
+        }
+
+        updateValues.push(req.params.id);
+
+        const sql = `UPDATE maintenance_requests SET ${updateFields.join(', ')} WHERE request_id = ?`;
+
+        db.query(sql, updateValues, (err, result) => {
+            if (err) return res.status(500).json(err);
+
+            // If status is Scrap, update equipment status
+            if (status === 'Scrap' && equipmentId) {
+                db.query('UPDATE equipment SET status = ? WHERE equipment_id = ?', ['Scrapped', equipmentId], (err2) => {
+                    if (err2) console.error('Failed to update equipment status:', err2);
+                });
+            }
+
+            // If status is Repaired, update equipment status to Operational
+            if (status === 'Repaired' && equipmentId) {
+                db.query('UPDATE equipment SET status = ? WHERE equipment_id = ?', ['Operational', equipmentId], (err2) => {
+                    if (err2) console.error('Failed to update equipment status:', err2);
+                });
+            }
+
+            res.json({ success: true });
+        });
     });
 });
 

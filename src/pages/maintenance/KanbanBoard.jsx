@@ -3,9 +3,10 @@ import { useData } from '../../context/DataContext';
 import { Plus, AlertCircle, Clock, CheckCircle, Trash2, Calendar } from 'lucide-react';
 import styles from './Kanban.module.css';
 import RequestModal from '../../components/maintenance/RequestModal';
+import RequestDetailModal from '../../components/maintenance/RequestDetailModal';
 
 // --- Kanban Card Component ---
-const KanbanCard = ({ request, onDragStart }) => {
+const KanbanCard = ({ request, onDragStart, onClick }) => {
     const { getEquipmentById, getUserById } = useData();
     const equipment = getEquipmentById(request.equipmentId);
     const assignedUser = request.technicianId ? getUserById(request.technicianId) : null;
@@ -19,6 +20,8 @@ const KanbanCard = ({ request, onDragStart }) => {
             className={`${styles.card} ${isOverdue ? styles.overdue : ''}`}
             draggable // Enable HTML5 Drag
             onDragStart={(e) => onDragStart(e, request.id)}
+            onClick={onClick}
+            style={{ cursor: 'pointer' }}
         >
             <div className={styles.cardHeader}>
                 <span className={styles.cardTitle}>{request.subject}</span>
@@ -31,7 +34,7 @@ const KanbanCard = ({ request, onDragStart }) => {
                 </div>
                 {request.scheduledDate && (
                     <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        <Calendar size={12} /> {new Date(request.scheduledDate).toLocaleDateString()}
+                        <Calendar size={12} /> {new Date(request.scheduledDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </div>
                 )}
             </div>
@@ -55,10 +58,12 @@ const KanbanCard = ({ request, onDragStart }) => {
 
 
 
+
 // --- Main Kanban Board ---
 const KanbanBoard = ({ equipmentId }) => {
     const { requests, updateRequestStatus, equipment } = useData();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedRequest, setSelectedRequest] = useState(null);
 
     // Filter requests
     const filteredRequests = equipmentId
@@ -86,7 +91,11 @@ const KanbanBoard = ({ equipmentId }) => {
 
     const onDrop = (e, status) => {
         const id = e.dataTransfer.getData('requestId');
-        updateRequestStatus(id, status);
+        updateRequestStatus(parseInt(id), status);
+    };
+
+    const handleCardClick = (request) => {
+        setSelectedRequest(request);
     };
 
     return (
@@ -129,6 +138,7 @@ const KanbanBoard = ({ equipmentId }) => {
                                         key={req.id}
                                         request={req}
                                         onDragStart={onDragStart}
+                                        onClick={() => handleCardClick(req)}
                                     />
                                 ))}
                             </div>
@@ -141,6 +151,13 @@ const KanbanBoard = ({ equipmentId }) => {
                 <RequestModal
                     onClose={() => setIsModalOpen(false)}
                     initialEquipmentId={equipmentId}
+                />
+            )}
+
+            {selectedRequest && (
+                <RequestDetailModal
+                    request={selectedRequest}
+                    onClose={() => setSelectedRequest(null)}
                 />
             )}
         </div>

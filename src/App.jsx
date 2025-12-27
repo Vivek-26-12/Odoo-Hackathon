@@ -8,8 +8,32 @@ import CalendarPage from './pages/CalendarPage';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
+import AdminDashboard from './pages/dashboards/AdminDashboard';
+import ManagerDashboard from './pages/dashboards/ManagerDashboard';
+import TechnicianDashboard from './pages/dashboards/TechnicianDashboard';
+import EmployeeDashboard from './pages/dashboards/EmployeeDashboard';
 
-const Dashboard = () => <div><h2>Dashboard</h2><p>Not implemented in this prototype. Go to Equipment or Maintenance.</p></div>;
+// Smart Dashboard Router - redirects to role-specific dashboard
+const DashboardRouter = () => {
+  const { currentUser } = useData();
+
+  if (!currentUser) return <Navigate to="/login" replace />;
+
+  const role = currentUser.role?.toLowerCase();
+
+  switch (role) {
+    case 'admin':
+      return <AdminDashboard />;
+    case 'manager':
+      return <ManagerDashboard />;
+    case 'technician':
+      return <TechnicianDashboard />;
+    case 'employee':
+      return <EmployeeDashboard />;
+    default:
+      return <EmployeeDashboard />;
+  }
+};
 
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useData();
@@ -33,7 +57,7 @@ function App() {
               <MainLayout />
             </ProtectedRoute>
           }>
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="dashboard" element={<DashboardRouter />} />
             <Route path="equipment" element={<EquipmentPage />} />
             <Route path="maintenance" element={<MaintenancePage />} />
             <Route path="calendar" element={<CalendarPage />} />

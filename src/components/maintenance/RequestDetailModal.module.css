@@ -1,0 +1,203 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal {
+    background: white;
+    border-radius: 12px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.5rem;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.modalHeader h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    color: #111827;
+}
+
+.modalContent {
+    padding: 1.5rem;
+}
+
+.modalFooter {
+    padding: 1.5rem;
+    border-top: 1px solid #E5E7EB;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.statusBadge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.statusNew {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.statusInProgress {
+    background: #DBEAFE;
+    color: #1E40AF;
+}
+
+.statusRepaired {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.statusScrap {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.infoItem label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.infoItem p {
+    margin: 0;
+    font-size: 1rem;
+    color: #111827;
+    font-weight: 600;
+}
+
+.meta {
+    font-size: 0.875rem;
+    color: #9CA3AF;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.priorityHigh,
+.priorityCritical {
+    color: #DC2626;
+}
+
+.priorityMedium {
+    color: #F59E0B;
+}
+
+.priorityLow {
+    color: #10B981;
+}
+
+.section {
+    margin-bottom: 1.5rem;
+}
+
+.section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 0.75rem 0;
+}
+
+.section p {
+    margin: 0;
+    color: #6B7280;
+    line-height: 1.6;
+}
+
+.technicianCard {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #F9FAFB;
+    border-radius: 8px;
+}
+
+.technicianCard img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.techName {
+    margin: 0;
+    font-weight: 600;
+    color: #111827;
+}
+
+.techRole {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+.assignmentForm {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.select,
+.input {
+    flex: 1;
+    padding: 0.625rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.select:focus,
+.input:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.durationForm {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.durationForm input {
+    width: 150px;
+}
+
+.durationForm span {
+    color: #6B7280;
+    font-size: 0.875rem;
+}
