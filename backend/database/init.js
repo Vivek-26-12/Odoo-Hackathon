@@ -576,6 +576,44 @@ const initDatabase = async () => {
       [priyaId]
     );
 
+    // Seed 60 Laptops to demonstrate pagination
+    console.log('🌱 Seeding 60 additional laptops for pagination test...');
+    for (let i = 1; i <= 60; i++) {
+      const tagNum = 5 + i; // AF-0006 to AF-0065
+      const tag = `AF-${String(tagNum).padStart(4, '0')}`;
+      const serial = `SN-QA-LAP-${1000 + i}`;
+      const status = i % 5 === 0 ? 'Allocated' : 'Available';
+      
+      const [newAsset] = await connection.query(
+        `INSERT INTO assets (name, category_id, asset_tag, serial_number, acquisition_date, acquisition_cost, condition_status, location, is_shared, status, custom_fields) 
+         VALUES (?, ?, ?, ?, '2026-05-01', 1100.00, 'Good', 'Bangalore Office, Floor 3', FALSE, ?, ?)`,
+        [`Enterprise Laptop Pro #${i}`, laptopsCatId, tag, serial, status, JSON.stringify({ ram: '16GB', storage: '256GB SSD', warranty_months: 12 })]
+      );
+      
+      // If allocated, create an active allocation to Rahul or John
+      if (status === 'Allocated') {
+        const holderId = i % 2 === 0 ? rahulId : johnId;
+        await connection.query(
+          `INSERT INTO asset_allocations (asset_id, allocated_to_type, employee_id, allocated_by, allocation_date, status) 
+           VALUES (?, 'employee', ?, ?, ?, 'Active')`,
+          [newAsset.insertId, holderId, adminUserId, tenDaysAgo]
+        );
+      }
+    }
+
+    // Seed 80 Activity Logs to demonstrate pagination
+    console.log('🌱 Seeding 80 activity logs for pagination test...');
+    for (let i = 1; i <= 80; i++) {
+      const logUser = i % 3 === 0 ? adminUserId : (i % 3 === 1 ? priyaId : rahulId);
+      const action = i % 4 === 0 ? 'Allocation' : (i % 4 === 1 ? 'Booking' : (i % 4 === 2 ? 'Maintenance' : 'Audit'));
+      const details = `Bulk Seeder action log #${i} - processed state for resource transaction code ${10000 + i}.`;
+      await connection.query(
+        `INSERT INTO activity_logs (user_id, action, details, created_at) 
+         VALUES (?, ?, ?, DATE_SUB(NOW(), INTERVAL ? HOUR))`,
+        [logUser, action, details, i]
+      );
+    }
+
     console.log('✔ Seeding process completed successfully.');
 
   } catch (error) {

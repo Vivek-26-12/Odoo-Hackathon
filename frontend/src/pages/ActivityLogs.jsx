@@ -16,6 +16,14 @@ const ActivityLogs = () => {
   const [feedback, setFeedback] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   const fetchLogs = async () => {
     setLoading(true);
     try {
@@ -123,7 +131,7 @@ const ActivityLogs = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-900/40">
-                {filteredLogs.map((log) => (
+                {(filteredLogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)).map((log) => (
                   <tr key={log.id} className="hover:bg-slate-900/10">
                     <td className="py-4 px-4 text-slate-400 font-mono">
                       {new Date(log.created_at).toLocaleString()}
@@ -156,6 +164,44 @@ const ActivityLogs = () => {
           </div>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {filteredLogs.length > itemsPerPage && (
+        <div className="flex justify-between items-center bg-slate-900/40 border border-slate-900/60 p-4 rounded-2xl text-xs mt-6">
+          <p className="text-slate-500 font-semibold">
+            Showing <strong className="text-slate-300">{(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredLogs.length)}</strong> of <strong className="text-slate-300">{filteredLogs.length}</strong> activity logs
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Prev
+            </button>
+            {Array.from({ length: Math.ceil(filteredLogs.length / itemsPerPage) }, (_, idx) => idx + 1).map((p) => (
+              <button
+                key={p}
+                onClick={() => setCurrentPage(p)}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
+                  currentPage === p
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+            <button
+              disabled={currentPage === Math.ceil(filteredLogs.length / itemsPerPage)}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

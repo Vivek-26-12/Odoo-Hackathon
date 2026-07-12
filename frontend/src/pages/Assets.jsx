@@ -33,6 +33,10 @@ const Assets = () => {
   const [isSharedFilter, setIsSharedFilter] = useState('');
   const [qrCodeSim, setQrCodeSim] = useState('');
   
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+  
   // Modal states
   const [registerOpen, setRegisterOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -96,6 +100,7 @@ const Assets = () => {
   }, []);
 
   useEffect(() => {
+    setCurrentPage(1);
     fetchAssets();
   }, [search, selectedCat, selectedStatus, selectedDept, isSharedFilter]);
 
@@ -353,7 +358,7 @@ const Assets = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {assets.map((asset) => (
+          {(assets.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)).map((asset) => (
             <div 
               key={asset.id} 
               className="glass-card rounded-2xl border border-slate-900 overflow-hidden flex flex-col group hover:border-slate-800 transition-all duration-300"
@@ -431,6 +436,44 @@ const Assets = () => {
 
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {assets.length > itemsPerPage && (
+        <div className="flex justify-between items-center bg-slate-900/40 border border-slate-900/60 p-4 rounded-2xl text-xs mt-6">
+          <p className="text-slate-500 font-semibold">
+            Showing <strong className="text-slate-300">{(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, assets.length)}</strong> of <strong className="text-slate-300">{assets.length}</strong> assets
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Prev
+            </button>
+            {Array.from({ length: Math.ceil(assets.length / itemsPerPage) }, (_, idx) => idx + 1).map((p) => (
+              <button
+                key={p}
+                onClick={() => setCurrentPage(p)}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
+                  currentPage === p
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+            <button
+              disabled={currentPage === Math.ceil(assets.length / itemsPerPage)}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
 
