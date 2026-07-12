@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import pool from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import orgRoutes from './routes/orgRoutes.js';
+import assetRoutes from './routes/assetRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 
 // Load environment variables
@@ -24,6 +25,7 @@ app.use(express.json());
 // Auth routes
 app.use('/api/auth', authRoutes);
 app.use('/api/org', orgRoutes);
+app.use('/api/assets', assetRoutes);
 
 // Basic health check route
 app.get('/api/health', async (req, res, next) => {
