@@ -144,8 +144,7 @@ export const editAsset = async (req, res, next) => {
       location,
       photo_url,
       is_shared,
-      custom_fields,
-      status
+      custom_fields
     } = req.body;
 
     let parsedCustomFields = custom_fields;
@@ -157,7 +156,7 @@ export const editAsset = async (req, res, next) => {
       }
     }
 
-    if (!name || !category_id || !serial_number || !acquisition_date || !acquisition_cost || !location || !status) {
+    if (!name || !category_id || !serial_number || !acquisition_date || !acquisition_cost || !location) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields.' });
     }
 
@@ -183,15 +182,12 @@ export const editAsset = async (req, res, next) => {
         photo_url,
         is_shared,
         custom_fields: parsedCustomFields,
-        status
+        status: asset.status // Lock status: direct mutations from PUT body are ignored
       });
 
       if (updated) {
         // Log update details
-        let details = `Asset updated by ${req.user.full_name}.`;
-        if (asset.status !== status) {
-          details += ` Status changed from ${asset.status} to ${status}.`;
-        }
+        const details = `Asset details updated by ${req.user.full_name}.`;
         await logAssetHistory(id, req.user.id, 'Update', details);
       }
 

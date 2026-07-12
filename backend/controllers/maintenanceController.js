@@ -98,7 +98,7 @@ export const updateRequest = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Status field is required.' });
     }
 
-    const validStatuses = ['Approved', 'Rejected', 'In Progress', 'Resolved'];
+    const validStatuses = ['Approved', 'Rejected', 'Technician Assigned', 'In Progress', 'Resolved'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid status update.' });
     }

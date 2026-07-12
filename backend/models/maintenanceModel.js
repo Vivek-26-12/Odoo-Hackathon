@@ -139,27 +139,31 @@ export const updateMaintenanceStatus = async (
     const request = requests[0];
     const currentStatus = request.status;
 
+    // Automatic promotion: If Pending -> Approved but they provided a technician, target status becomes Technician Assigned!
+    let targetStatus = status;
+    if (currentStatus === 'Pending' && status === 'Approved' && technician_assigned) {
+      targetStatus = 'Technician Assigned';
+    }
+
     // Validate workflow transitions
-    // Pending -> Approved or Rejected
-    // Approved -> In Progress
-    // In Progress -> Resolved
     const allowedTransitions = {
-      'Pending': ['Approved', 'Rejected'],
-      'Approved': ['In Progress', 'Resolved'],
-      'Rejected': [],
+      'Pending': ['Approved', 'Rejected', 'Technician Assigned'],
+      'Approved': ['Technician Assigned', 'In Progress'],
+      'Technician Assigned': ['In Progress'],
       'In Progress': ['Resolved'],
+      'Rejected': [],
       'Resolved': []
     };
 
-    if (!allowedTransitions[currentStatus].includes(status)) {
-      throw new Error(`Invalid status transition from ${currentStatus} to ${status}.`);
+    if (!allowedTransitions[currentStatus].includes(targetStatus)) {
+      throw new Error(`Invalid status transition from ${currentStatus} to ${targetStatus}.`);
     }
 
     // 2. Update request
     let updateQuery = 'UPDATE maintenance_requests SET status = ?';
-    const params = [status];
+    const params = [targetStatus];
 
-    if (status === 'Approved' || status === 'Rejected') {
+    if (targetStatus === 'Approved' || targetStatus === 'Rejected' || targetStatus === 'Technician Assigned') {
       updateQuery += ', approved_by = ?';
       params.push(updatedByUserId);
     }
@@ -178,24 +182,24 @@ export const updateMaintenanceStatus = async (
     await connection.query(`
       INSERT INTO maintenance_updates (request_id, updated_by, status, notes)
       VALUES (?, ?, ?, ?)
-    `, [requestId, updatedByUserId, status, notes || `Status updated to ${status}.`]);
+    `, [requestId, updatedByUserId, targetStatus, notes || `Status updated to ${targetStatus}.`]);
 
     // 4. Update asset status
-    // On Approval -> asset becomes "Under Maintenance"
+    // On Approval / Tech Assignment -> asset becomes "Under Maintenance"
     // On Resolution -> asset becomes "Available"
-    if (status === 'Approved') {
+    if (targetStatus === 'Approved' || targetStatus === 'Technician Assigned') {
       await connection.query("UPDATE assets SET status = 'Under Maintenance' WHERE id = ?", [request.asset_id]);
       await connection.query(`
         INSERT INTO asset_history (asset_id, user_id, action_type, details)
-        VALUES (?, ?, 'Maintenance', 'Maintenance request approved. Asset set to Under Maintenance.')
-      `, [request.asset_id, updatedByUserId]);
-    } else if (status === 'Resolved') {
+        VALUES (?, ?, 'Maintenance', ?)
+      `, [request.asset_id, updatedByUserId, `Maintenance request approved. Asset set to Under Maintenance. (State: ${targetStatus})`]);
+    } else if (targetStatus === 'Resolved') {
       await connection.query("UPDATE assets SET status = 'Available' WHERE id = ?", [request.asset_id]);
       await connection.query(`
         INSERT INTO asset_history (asset_id, user_id, action_type, details)
         VALUES (?, ?, 'Maintenance', 'Maintenance request resolved. Asset reverted to Available.')
       `, [request.asset_id, updatedByUserId]);
-    } else if (status === 'Rejected') {
+    } else if (targetStatus === 'Rejected') {
       await connection.query(`
         INSERT INTO asset_history (asset_id, user_id, action_type, details)
         VALUES (?, ?, 'Maintenance', 'Maintenance request rejected.')

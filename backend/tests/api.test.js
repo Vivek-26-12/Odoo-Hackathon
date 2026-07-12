@@ -313,21 +313,194 @@ describe('AssetFlow API Integration Tests Suite', () => {
   });
 
   // ==========================================
-  // SECTION 6: MAINTENANCE WORKFLOW TESTS
+  // SECTION 6: ERP WORKFLOWS & HARDENING TESTS
   // ==========================================
-  describe('Maintenance Endpoints', () => {
-    it('should log a maintenance request for the asset', async () => {
-      const res = await request(app)
+  describe('ERP Hardening & Workflow Enforcements', () => {
+    let maintenanceRequestId;
+    let auditCycleId;
+
+    it('should lock asset status from direct mutations via edit API', async () => {
+      // 1. Fetch current asset details to get its status
+      const getRes = await request(app)
+        .get(`/api/assets/${assetId}`)
+        .set('Authorization', `Bearer ${authToken}`);
+      
+      const originalStatus = getRes.body.asset.status;
+      const targetMutation = originalStatus === 'Available' ? 'Allocated' : 'Available';
+
+      // 2. Attempt PUT edit request sending the mutated status
+      const putRes = await request(app)
+        .put(`/api/assets/${assetId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          name: getRes.body.asset.name,
+          category_id: getRes.body.asset.category_id,
+          serial_number: getRes.body.asset.serial_number,
+          acquisition_date: getRes.body.asset.acquisition_date.substring(0, 10),
+          acquisition_cost: getRes.body.asset.acquisition_cost,
+          condition_status: getRes.body.asset.condition_status,
+          location: getRes.body.asset.location,
+          is_shared: getRes.body.asset.is_shared,
+          status: targetMutation // Direct mutation payload
+        });
+
+      expect(putRes.status).to.equal(200);
+
+      // 3. Verify that the asset status remained locked to its original database value
+      const verifyRes = await request(app)
+        .get(`/api/assets/${assetId}`)
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(verifyRes.body.asset.status).to.equal(originalStatus);
+    });
+
+    it('should enforce maintenance sequence rules and delay Under Maintenance state', async () => {
+      // 1. Create a new asset for this maintenance test to ensure it starts as Available
+      const assetReg = await request(app)
+        .post('/api/assets')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          name: 'QA Maintenance Test Laptop',
+          category_id: categoryId,
+          serial_number: `SN-QA-MAINT-${Date.now()}`,
+          acquisition_date: '2026-06-01',
+          acquisition_cost: 1500.00,
+          condition_status: 'New',
+          location: 'HQ Floor 1'
+        });
+      
+      const testAssetId = assetReg.body.asset.id;
+
+      // 2. Raise maintenance request (status Pending)
+      const raiseRes = await request(app)
         .post('/api/maintenance')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          asset_id: assetId,
-          issue_description: 'Test: fan making high-pitched noise.',
+          asset_id: testAssetId,
+          issue_description: 'Spacebar keyboard key popped off.',
           priority: 'Medium'
         });
 
-      expect(res.status).to.equal(201);
-      expect(res.body).to.have.property('success', true);
+      expect(raiseRes.status).to.equal(201);
+      maintenanceRequestId = raiseRes.body.requestId;
+
+      // 3. Verify asset status remains Available (not Under Maintenance yet!)
+      let assetVerify = await request(app)
+        .get(`/api/assets/${testAssetId}`)
+        .set('Authorization', `Bearer ${authToken}`);
+      expect(assetVerify.body.asset.status).to.equal('Available');
+
+      // 4. Try invalid transition: Pending -> In Progress (should fail 400)
+      const badTrans = await request(app)
+        .put(`/api/maintenance/${maintenanceRequestId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          status: 'In Progress'
+        });
+      expect(badTrans.status).to.equal(400);
+      expect(badTrans.body.message).to.contain('Invalid status transition');
+
+      // 5. Valid transition: Approve and assign technician (moves directly to Technician Assigned)
+      const approveRes = await request(app)
+        .put(`/api/maintenance/${maintenanceRequestId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          status: 'Approved',
+          technician_assigned: 'Jane Doe (Hardware Tech)',
+          notes: 'Approved for offsite repair.'
+        });
+      expect(approveRes.status).to.equal(200);
+
+      // Verify that status is now Technician Assigned
+      const requestDetails = await request(app)
+        .get(`/api/maintenance/${maintenanceRequestId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(requestDetails.body.request.status).to.equal('Technician Assigned');
+
+      // 6. Verify that the asset status has now transitioned to Under Maintenance
+      assetVerify = await request(app)
+        .get(`/api/assets/${testAssetId}`)
+        .set('Authorization', `Bearer ${authToken}`);
+      expect(assetVerify.body.asset.status).to.equal('Under Maintenance');
+
+      // 7. Transition: Technician Assigned -> In Progress
+      const progressRes = await request(app)
+        .put(`/api/maintenance/${maintenanceRequestId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          status: 'In Progress',
+          notes: 'Technician has started repairing.'
+        });
+      expect(progressRes.status).to.equal(200);
+
+      // 8. Transition: In Progress -> Resolved
+      const resolveRes = await request(app)
+        .put(`/api/maintenance/${maintenanceRequestId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          status: 'Resolved',
+          notes: 'Keyboard replaced.'
+        });
+      expect(resolveRes.status).to.equal(200);
+
+      // 9. Verify that the asset has reverted to Available status
+      assetVerify = await request(app)
+        .get(`/api/assets/${testAssetId}`)
+        .set('Authorization', `Bearer ${authToken}`);
+      expect(assetVerify.body.asset.status).to.equal('Available');
+    });
+
+    it('should block verifications and modifications on a closed audit cycle', async () => {
+      // 1. Create a new audit cycle
+      const cycleRes = await request(app)
+        .post('/api/audits')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          name: `QA Verification Lock Audit ${Date.now()}`,
+          start_date: '2026-07-01',
+          end_date: '2026-07-31',
+          auditor_ids: [1]
+        });
+      
+      expect(cycleRes.status).to.equal(201);
+      auditCycleId = cycleRes.body.cycleId;
+
+      // 2. Fetch scoped assets to log a verification check-off
+      const detailsRes = await request(app)
+        .get(`/api/audits/${auditCycleId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      
+      const testAssetId = detailsRes.body.assets[0].asset_id;
+
+      // 3. Log a verification: should succeed while cycle is Active
+      const verifyRes = await request(app)
+        .post(`/api/audits/${auditCycleId}/verify/${testAssetId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          verification_status: 'Verified',
+          notes: 'Asset is at Desk 4.'
+        });
+      
+      expect(verifyRes.status).to.equal(200);
+
+      // 4. Close the audit cycle
+      const closeRes = await request(app)
+        .post(`/api/audits/${auditCycleId}/close`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      
+      expect(closeRes.status).to.equal(200);
+
+      // 5. Attempt another verification: should fail with 400 error because cycle is closed
+      const lockRes = await request(app)
+        .post(`/api/audits/${auditCycleId}/verify/${testAssetId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          verification_status: 'Verified',
+          notes: 'Checking locked state.'
+        });
+      
+      expect(lockRes.status).to.equal(400);
+      expect(lockRes.body.message).to.contain('closed and locked');
     });
   });
 });
