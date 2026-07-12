@@ -351,20 +351,232 @@ const initDatabase = async () => {
 
     // Seed Default Admin User
     const adminEmail = 'admin@assetflow.com';
+    let adminUserId = 1;
+    const salt = await bcrypt.genSalt(10);
+    const defaultPasswordHash = await bcrypt.hash('Admin@123', salt);
+    const employeePasswordHash = await bcrypt.hash('Password@123', salt);
+
     const [existingAdmin] = await connection.query('SELECT id FROM users WHERE email = ? LIMIT 1', [adminEmail]);
     if (existingAdmin.length === 0) {
       console.log('🌱 Seeding default admin user (admin@assetflow.com)...');
-      const salt = await bcrypt.genSalt(10);
-      const adminPasswordHash = await bcrypt.hash('Admin@123', salt);
-      await connection.query(
+      const [adminResult] = await connection.query(
         `INSERT INTO users (full_name, email, password_hash, is_verified, role, status) 
          VALUES (?, ?, ?, TRUE, 'admin', 'active')`,
-        ['System Admin', adminEmail, adminPasswordHash]
+        ['System Admin', adminEmail, defaultPasswordHash]
       );
+      adminUserId = adminResult.insertId;
       console.log('✔ Seeded default admin successfully.');
     } else {
+      adminUserId = existingAdmin[0].id;
       console.log('✔ Default admin user already exists.');
     }
+
+    // Seed Departments
+    console.log('🌱 Seeding departments...');
+    const [dept1] = await connection.query(
+      "INSERT INTO departments (name) VALUES ('Engineering')",
+      []
+    );
+    const [dept2] = await connection.query(
+      "INSERT INTO departments (name) VALUES ('HR & Operations')",
+      []
+    );
+    const [dept3] = await connection.query(
+      "INSERT INTO departments (name) VALUES ('Sales & Marketing')",
+      []
+    );
+
+    const engineeringId = dept1.insertId;
+    const hrOpsId = dept2.insertId;
+
+    // Seed Users / Employees
+    console.log('🌱 Seeding test users...');
+    const [user1Result] = await connection.query(
+      `INSERT INTO users (full_name, email, password_hash, is_verified, role, status, department_id) 
+       VALUES ('Priya Devi', 'priya.devi@assetflow.com', ?, TRUE, 'dept_head', 'active', ?)`,
+      [employeePasswordHash, engineeringId]
+    );
+    const [user2Result] = await connection.query(
+      `INSERT INTO users (full_name, email, password_hash, is_verified, role, status, department_id) 
+       VALUES ('Rahul Raghavan', 'rahul.raghavan@assetflow.com', ?, TRUE, 'employee', 'active', ?)`,
+      [employeePasswordHash, engineeringId]
+    );
+    const [user3Result] = await connection.query(
+      `INSERT INTO users (full_name, email, password_hash, is_verified, role, status, department_id) 
+       VALUES ('Sarah Connor', 'sarah.connor@assetflow.com', ?, TRUE, 'asset_manager', 'active', ?)`,
+      [employeePasswordHash, hrOpsId]
+    );
+    const [user4Result] = await connection.query(
+      `INSERT INTO users (full_name, email, password_hash, is_verified, role, status, department_id) 
+       VALUES ('John Doe', 'john.doe@assetflow.com', ?, TRUE, 'employee', 'active', ?)`,
+      [employeePasswordHash, hrOpsId]
+    );
+
+    const priyaId = user1Result.insertId;
+    const rahulId = user2Result.insertId;
+    const sarahId = user3Result.insertId;
+    const johnId = user4Result.insertId;
+
+    // Update Engineering head_id
+    await connection.query('UPDATE departments SET head_id = ? WHERE id = ?', [priyaId, engineeringId]);
+
+    // Seed Categories
+    console.log('🌱 Seeding categories...');
+    const [cat1] = await connection.query(
+      `INSERT INTO categories (name, fields) VALUES ('Laptops', ?)`,
+      [JSON.stringify([
+        { name: 'ram', label: 'RAM Memory', type: 'text' },
+        { name: 'storage', label: 'Storage Size', type: 'text' },
+        { name: 'warranty_months', label: 'Warranty (Months)', type: 'number' }
+      ])]
+    );
+    const [cat2] = await connection.query(
+      `INSERT INTO categories (name, fields) VALUES ('Vehicles', ?)`,
+      [JSON.stringify([
+        { name: 'license_plate', label: 'License Plate', type: 'text' },
+        { name: 'fuel_type', label: 'Fuel Type', type: 'text' }
+      ])]
+    );
+
+    const laptopsCatId = cat1.insertId;
+    const vehiclesCatId = cat2.insertId;
+
+    // Seed Assets
+    console.log('🌱 Seeding assets directory...');
+    // Asset 1: Macbook Pro (Allocated to Priya)
+    const [asset1Result] = await connection.query(
+      `INSERT INTO assets (name, category_id, asset_tag, serial_number, acquisition_date, acquisition_cost, condition_status, location, is_shared, status, custom_fields) 
+       VALUES ('MacBook Pro 16" M3 Max', ?, 'AF-0001', 'SN-MBP16-9872', '2026-01-15', 3499.00, 'New', 'Bangalore Office, Room 401', FALSE, 'Allocated', ?)`,
+      [laptopsCatId, JSON.stringify({ ram: '48GB', storage: '1TB SSD', warranty_months: 36 })]
+    );
+    // Asset 2: Dell Latitude (Available)
+    const [asset2Result] = await connection.query(
+      `INSERT INTO assets (name, category_id, asset_tag, serial_number, acquisition_date, acquisition_cost, condition_status, location, is_shared, status, custom_fields) 
+       VALUES ('Dell Latitude 5420', ?, 'AF-0002', 'SN-DELL-6152', '2026-02-10', 1250.00, 'Good', 'Delhi Office, Desk 12', FALSE, 'Available', ?)`,
+      [laptopsCatId, JSON.stringify({ ram: '16GB', storage: '512GB SSD', warranty_months: 12 })]
+    );
+    // Asset 3: Tesla Model 3 (Shared / Bookable)
+    const [asset3Result] = await connection.query(
+      `INSERT INTO assets (name, category_id, asset_tag, serial_number, acquisition_date, acquisition_cost, condition_status, location, is_shared, status, custom_fields) 
+       VALUES ('Tesla Model 3', ?, 'AF-0003', 'SN-TESLA-9921', '2026-03-01', 38990.00, 'New', 'Bangalore Garage, Bay 2', TRUE, 'Available', ?)`,
+      [vehiclesCatId, JSON.stringify({ license_plate: 'KA-03-MJ-1290', fuel_type: 'Electric' })]
+    );
+    // Asset 4: Projector (Under Maintenance)
+    const [asset4Result] = await connection.query(
+      `INSERT INTO assets (name, category_id, asset_tag, serial_number, acquisition_date, acquisition_cost, condition_status, location, is_shared, status) 
+       VALUES ('Epson projector EB-X06', ?, 'AF-0004', 'SN-EPSON-3122', '2026-02-28', 550.00, 'Fair', 'Bangalore Conference Room B', TRUE, 'Under Maintenance')`,
+      [laptopsCatId]
+    );
+    // Asset 5: Keyboard (Overdue Allocation)
+    const [asset5Result] = await connection.query(
+      `INSERT INTO assets (name, category_id, asset_tag, serial_number, acquisition_date, acquisition_cost, condition_status, location, is_shared, status) 
+       VALUES ('Keychron K2 Keyboard', ?, 'AF-0005', 'SN-KEYBOARD-1234', '2026-04-10', 99.00, 'Good', 'Bangalore Office, Desk 50', FALSE, 'Allocated')`,
+      [laptopsCatId]
+    );
+
+    const asset1Id = asset1Result.insertId;
+    const asset2Id = asset2Result.insertId;
+    const asset3Id = asset3Result.insertId;
+    const asset4Id = asset4Result.insertId;
+    const asset5Id = asset5Result.insertId;
+
+    // Seed Asset Allocations
+    console.log('🌱 Seeding asset allocations...');
+    // Active allocation: Macbook to Priya
+    const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+    const ninetyDaysHence = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+    await connection.query(
+      `INSERT INTO asset_allocations (asset_id, allocated_to_type, employee_id, allocated_by, allocation_date, expected_return_date, status) 
+       VALUES (?, 'employee', ?, ?, ?, ?, 'Active')`,
+      [asset1Id, priyaId, adminUserId, tenDaysAgo, ninetyDaysHence]
+    );
+    // Overdue allocation: Keyboard to John Doe
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
+    await connection.query(
+      `INSERT INTO asset_allocations (asset_id, allocated_to_type, employee_id, allocated_by, allocation_date, expected_return_date, status) 
+       VALUES (?, 'employee', ?, ?, ?, ?, 'Active')`,
+      [asset5Id, johnId, adminUserId, thirtyDaysAgo, fiveDaysAgo]
+    );
+
+    // Seed Transfer Requests
+    console.log('🌱 Seeding transfer requests...');
+    await connection.query(
+      `INSERT INTO transfer_requests (asset_id, from_employee_id, to_employee_id, requested_by, status) 
+       VALUES (?, ?, ?, ?, 'Pending')`,
+      [asset1Id, priyaId, rahulId, rahulId]
+    );
+
+    // Seed Resources & Bookings
+    console.log('🌱 Seeding resources and bookings...');
+    const [res1] = await connection.query(
+      "INSERT INTO resources (name, type, description, status) VALUES ('Conference Room A1 (Glassmorphism)', 'room', 'Seating capacity 12, screen and whiteboards', 'Active')",
+      []
+    );
+    const [res2] = await connection.query(
+      "INSERT INTO resources (name, type, description, status) VALUES ('Company Tesla Model 3', 'vehicle', 'Tesla Model 3 reserved for client transport', 'Active')",
+      []
+    );
+    const confRoomResId = res1.insertId;
+
+    // Booking: Today from 14:00 to 15:30
+    const today2PM = new Date();
+    today2PM.setHours(14, 0, 0, 0);
+    const today330PM = new Date();
+    today330PM.setHours(15, 30, 0, 0);
+    await connection.query(
+      `INSERT INTO bookings (resource_id, start_time, end_time, booked_by, booked_for_type, status) 
+       VALUES (?, ?, ?, ?, 'employee', 'Upcoming')`,
+      [confRoomResId, today2PM, today330PM, priyaId]
+    );
+
+    // Seed Maintenance Requests
+    console.log('🌱 Seeding maintenance logs...');
+    // Request 1: Projector (Pending)
+    await connection.query(
+      `INSERT INTO maintenance_requests (asset_id, reported_by, issue_description, priority, status) 
+       VALUES (?, ?, 'Projector lamp flickering and dimming during presentations.', 'High', 'Pending')`,
+      [asset4Id, priyaId]
+    );
+    // Request 2: Dell Latitude (In Progress)
+    await connection.query(
+      `INSERT INTO maintenance_requests (asset_id, reported_by, issue_description, priority, status, technician_assigned) 
+       VALUES (?, ?, 'Broken spacebar key requires full keyboard replacement.', 'Medium', 'In Progress', 'Ramesh Kumar (Hardware Tech)')`,
+      [asset2Id, rahulId]
+    );
+
+    // Seed Notifications
+    console.log('🌱 Seeding notifications...');
+    await connection.query(
+      `INSERT INTO notifications (user_id, title, message, type) 
+       VALUES (?, 'Overdue Alert', 'Your allocation of Keychron K2 Keyboard is 5 days overdue.', 'overdue')`,
+      [johnId]
+    );
+    await connection.query(
+      `INSERT INTO notifications (user_id, title, message, type) 
+       VALUES (?, 'Transfer Request', 'Rahul Raghavan requested transfer of MacBook Pro.', 'transfer')`,
+      [priyaId]
+    );
+
+    // Seed Activity Logs
+    console.log('🌱 Seeding audit activity logs...');
+    await connection.query(
+      `INSERT INTO activity_logs (user_id, action, details) 
+       VALUES (?, 'Allocation', 'MacBook Pro 16" M3 Max allocated to Priya Devi')`,
+      [adminUserId]
+    );
+    await connection.query(
+      `INSERT INTO activity_logs (user_id, action, details) 
+       VALUES (?, 'Booking', 'Conference Room A1 reserved for Priya Devi')`,
+      [priyaId]
+    );
+    await connection.query(
+      `INSERT INTO activity_logs (user_id, action, details) 
+       VALUES (?, 'Maintenance', 'Maintenance request created for Epson projector EB-X06')`,
+      [priyaId]
+    );
+
+    console.log('✔ Seeding process completed successfully.');
 
   } catch (error) {
     console.error('❌ Database schema initialization failed:', error.message);
