@@ -308,13 +308,13 @@ const Allocations = () => {
                 
                 {/* Conflict Alert Box */}
                 {conflictData && (
-                  <div className="p-4 bg-red-950/30 border border-red-500/20 text-red-400 text-xs rounded-xl space-y-3">
-                    <p className="font-semibold flex items-center gap-1.5">
+                  <div className="p-4 bg-red-950/30 border border-red-500/20 text-red-400 text-xs rounded-xl space-y-3 animate-fade-in">
+                    <p className="font-bold flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
                       <AlertTriangle className="w-4 h-4" />
-                      Double-Allocation Blocked
+                      Already Allocated to {conflictData.currently_held_by}
                     </p>
-                    <p className="leading-relaxed">
-                      {conflictData.message}. Double-allocation is rejected.
+                    <p className="leading-relaxed font-semibold">
+                      Double-allocation is blocked - request a Transfer request instead.
                     </p>
                     {conflictData.holder_type === 'employee' && (
                       <button

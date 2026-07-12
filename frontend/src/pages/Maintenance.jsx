@@ -201,68 +201,176 @@ const Maintenance = () => {
         </div>
       )}
 
-      {/* Requests List Board */}
-      <div className="glass-card p-6 rounded-2xl border border-slate-800">
-        <h2 className="text-lg font-bold text-slate-200 mb-6">Active Tickets & Logs</h2>
-        
+      {/* Requests Kanban Board (Screen 7) */}
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-bold text-slate-200">Maintenance Workflow Board</h2>
+          <span className="text-xs text-slate-500 font-semibold font-mono">Drag/click columns to manage transitions</span>
+        </div>
+
         {requests.length === 0 ? (
-          <div className="py-16 text-center text-slate-500 text-xs">
+          <div className="glass-card py-16 text-center text-slate-500 text-xs rounded-2xl border border-slate-800">
             No maintenance requests logged in the system. Everything is operating normally.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-900 text-slate-400 uppercase tracking-wider">
-                  <th className="py-3 px-4 font-bold">Asset Tag</th>
-                  <th className="py-3 px-4 font-bold">Equipment</th>
-                  <th className="py-3 px-4 font-bold">Priority</th>
-                  <th className="py-3 px-4 font-bold">Reported By</th>
-                  <th className="py-3 px-4 font-bold">Technician</th>
-                  <th className="py-3 px-4 font-bold">Status</th>
-                  <th className="py-3 px-4 font-bold text-right">Workflow Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-900/40">
-                {requests.map((req) => (
-                  <tr key={req.id} className="hover:bg-slate-900/10">
-                    <td className="py-4 px-4 font-mono font-bold text-purple-400">{req.asset_tag}</td>
-                    <td className="py-4 px-4 font-semibold text-slate-200">{req.asset_name}</td>
-                    <td className="py-4 px-4">
-                      <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${getPriorityBadge(req.priority)}`}>
-                        {req.priority}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-slate-400">{req.reported_by_name}</td>
-                    <td className="py-4 px-4 text-slate-300">
-                      {req.technician_assigned || <span className="text-slate-600">Unassigned</span>}
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${getStatusBadge(req.status)}`}>
-                        {req.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-right">
-                      {req.status !== 'Resolved' && req.status !== 'Rejected' ? (
-                        (user?.role === 'admin' || user?.role === 'asset_manager') ? (
-                          <button
-                            onClick={() => openAction(req)}
-                            className="inline-flex items-center gap-1 bg-purple-600/10 hover:bg-purple-600 text-purple-400 hover:text-white px-2.5 py-1.5 rounded-lg border border-purple-500/10 text-[10px] font-bold transition-all cursor-pointer"
-                          >
-                            <Sliders className="w-3.5 h-3.5" />
-                            Manage Transition
-                          </button>
-                        ) : (
-                          <span className="text-[10px] text-slate-600">Active</span>
-                        )
-                      ) : (
-                        <span className="text-[10px] text-slate-600">Closed</span>
-                      )}
-                    </td>
-                  </tr>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 overflow-x-auto pb-4">
+            
+            {/* COLUMN 1: PENDING */}
+            <div className="space-y-4 min-w-[200px]">
+              <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex justify-between items-center">
+                <span className="text-xs font-bold text-yellow-400 uppercase tracking-wider">Pending</span>
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-yellow-400/10 text-yellow-400">
+                  {requests.filter(r => r.status === 'Pending').length}
+                </span>
+              </div>
+              <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                {requests.filter(r => r.status === 'Pending').map(req => (
+                  <div 
+                    key={req.id} 
+                    onClick={() => openAction(req)}
+                    className="p-4 bg-slate-900/20 hover:bg-slate-900/60 border border-slate-900 hover:border-slate-800 rounded-xl cursor-pointer transition-all space-y-3 group"
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className="font-mono text-[10px] text-purple-400 font-bold bg-purple-500/5 px-2 py-0.5 rounded border border-purple-500/10">{req.asset_tag}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${getPriorityBadge(req.priority)}`}>{req.priority}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-200 group-hover:text-purple-400 transition-colors">{req.asset_name}</p>
+                      <p className="text-[10px] text-slate-500 mt-1 line-clamp-2">{req.issue_description}</p>
+                    </div>
+                    <div className="text-[9px] text-slate-600 border-t border-slate-900/60 pt-2 flex justify-between">
+                      <span>By: {req.reported_by_name}</span>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </div>
+
+            {/* COLUMN 2: APPROVED */}
+            <div className="space-y-4 min-w-[200px]">
+              <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex justify-between items-center">
+                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">Approved</span>
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-purple-400/10 text-purple-400">
+                  {requests.filter(r => r.status === 'Approved' && !r.technician_assigned).length}
+                </span>
+              </div>
+              <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                {requests.filter(r => r.status === 'Approved' && !r.technician_assigned).map(req => (
+                  <div 
+                    key={req.id} 
+                    onClick={() => openAction(req)}
+                    className="p-4 bg-slate-900/20 hover:bg-slate-900/60 border border-slate-900 hover:border-slate-800 rounded-xl cursor-pointer transition-all space-y-3 group"
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className="font-mono text-[10px] text-purple-400 font-bold bg-purple-500/5 px-2 py-0.5 rounded border border-purple-500/10">{req.asset_tag}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${getPriorityBadge(req.priority)}`}>{req.priority}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-200 group-hover:text-purple-400 transition-colors">{req.asset_name}</p>
+                      <p className="text-[10px] text-slate-500 mt-1 line-clamp-2">{req.issue_description}</p>
+                    </div>
+                    <div className="text-[9px] text-slate-600 border-t border-slate-900/60 pt-2">
+                      <span>No Tech Assigned</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* COLUMN 3: TECH ASSIGNED */}
+            <div className="space-y-4 min-w-[200px]">
+              <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex justify-between items-center">
+                <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Tech Assigned</span>
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-indigo-400/10 text-indigo-400">
+                  {requests.filter(r => r.status === 'Approved' && r.technician_assigned).length}
+                </span>
+              </div>
+              <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                {requests.filter(r => r.status === 'Approved' && r.technician_assigned).map(req => (
+                  <div 
+                    key={req.id} 
+                    onClick={() => openAction(req)}
+                    className="p-4 bg-slate-900/20 hover:bg-slate-900/60 border border-slate-900 hover:border-slate-800 rounded-xl cursor-pointer transition-all space-y-3 group"
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className="font-mono text-[10px] text-purple-400 font-bold bg-purple-500/5 px-2 py-0.5 rounded border border-purple-500/10">{req.asset_tag}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${getPriorityBadge(req.priority)}`}>{req.priority}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-200 group-hover:text-purple-400 transition-colors">{req.asset_name}</p>
+                      <p className="text-[10px] text-slate-500 mt-1 line-clamp-2">{req.issue_description}</p>
+                    </div>
+                    <div className="text-[9px] text-indigo-300 border-t border-slate-900/60 pt-2 flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      <span className="truncate">{req.technician_assigned}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* COLUMN 4: IN PROGRESS */}
+            <div className="space-y-4 min-w-[200px]">
+              <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex justify-between items-center">
+                <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">In Progress</span>
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-blue-400/10 text-blue-400">
+                  {requests.filter(r => r.status === 'In Progress').length}
+                </span>
+              </div>
+              <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                {requests.filter(r => r.status === 'In Progress').map(req => (
+                  <div 
+                    key={req.id} 
+                    onClick={() => openAction(req)}
+                    className="p-4 bg-slate-900/20 hover:bg-slate-900/60 border border-slate-900 hover:border-slate-800 rounded-xl cursor-pointer transition-all space-y-3 group"
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className="font-mono text-[10px] text-purple-400 font-bold bg-purple-500/5 px-2 py-0.5 rounded border border-purple-500/10">{req.asset_tag}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${getPriorityBadge(req.priority)}`}>{req.priority}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-200 group-hover:text-purple-400 transition-colors">{req.asset_name}</p>
+                      <p className="text-[10px] text-slate-500 mt-1 line-clamp-2">{req.issue_description}</p>
+                    </div>
+                    <div className="text-[9px] text-blue-300 border-t border-slate-900/60 pt-2 flex items-center gap-1">
+                      <User className="w-3 h-3 text-blue-400" />
+                      <span className="truncate">{req.technician_assigned}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* COLUMN 5: RESOLVED / CLOSED */}
+            <div className="space-y-4 min-w-[200px]">
+              <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex justify-between items-center">
+                <span className="text-xs font-bold text-green-400 uppercase tracking-wider">Resolved</span>
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-green-400/10 text-green-400">
+                  {requests.filter(r => r.status === 'Resolved' || r.status === 'Rejected').length}
+                </span>
+              </div>
+              <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                {requests.filter(r => r.status === 'Resolved' || r.status === 'Rejected').map(req => (
+                  <div 
+                    key={req.id} 
+                    className="p-4 bg-slate-900/20 border border-slate-900 rounded-xl space-y-3 opacity-60"
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className="font-mono text-[10px] text-slate-500 font-bold bg-slate-500/5 px-2 py-0.5 rounded border border-slate-500/10">{req.asset_tag}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold bg-green-950/20 text-green-400 border border-green-950/30`}>{req.status}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-300">{req.asset_name}</p>
+                      <p className="text-[10px] text-slate-500 mt-1 line-clamp-2">{req.issue_description}</p>
+                    </div>
+                    <div className="text-[9px] text-slate-500 border-t border-slate-900/60 pt-2 flex items-center justify-between">
+                      <span className="truncate">Tech: {req.technician_assigned || 'None'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         )}
       </div>

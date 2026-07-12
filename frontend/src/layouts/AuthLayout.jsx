@@ -11,18 +11,15 @@ const AuthLayout = () => {
 
       <div className="w-full max-w-md z-10">
         {/* Brand Header */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 group">
-            <div className="p-2.5 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-xl shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform duration-300">
-              <Shield className="w-6 h-6 text-white" />
+        <div className="text-center mb-6">
+          <Link to="/" className="inline-flex flex-col items-center gap-2 group">
+            <div className="w-16 h-16 bg-slate-900 border border-slate-800 rounded-full flex items-center justify-center shadow-xl group-hover:scale-105 transition-transform duration-300">
+              <span className="text-xl font-black text-purple-400 font-mono tracking-wider">AF</span>
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent font-sans tracking-wide">
-              OTP Initiate
+            <span className="text-sm font-semibold text-slate-500 uppercase tracking-widest mt-1">
+              AssetFlow
             </span>
           </Link>
-          <p className="mt-2.5 text-sm text-slate-400">
-            Secure, production-grade identity access management
-          </p>
         </div>
 
         {/* Auth Page Content Container (Glass Card) */}

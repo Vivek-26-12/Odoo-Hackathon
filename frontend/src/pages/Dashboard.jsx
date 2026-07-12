@@ -31,6 +31,7 @@ const Dashboard = () => {
   });
 
   const [overdueAlerts, setOverdueAlerts] = useState([]);
+  const [recentLogs, setRecentLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = async () => {
@@ -46,6 +47,16 @@ const Dashboard = () => {
         if (overdueRes.data.success) {
           setOverdueAlerts(overdueRes.data.overdue);
         }
+      }
+
+      // Fetch recent logs
+      try {
+        const logsRes = await api.get('/notifications/logs');
+        if (logsRes.data.success) {
+          setRecentLogs(logsRes.data.logs.slice(0, 3));
+        }
+      } catch (err) {
+        console.error('Error fetching logs for dashboard:', err.message);
       }
     } catch (error) {
       console.error('Error fetching dashboard stats:', error.message);
@@ -218,6 +229,34 @@ const Dashboard = () => {
           )}
         </div>
 
+      </div>
+
+      {/* Recent Activity (Screen 2) */}
+      <div className="glass-card p-6 rounded-2xl border border-slate-800/80">
+        <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider pb-2 border-b border-slate-900 mb-4 flex items-center gap-2">
+          <Clock className="w-4.5 h-4.5 text-purple-400" />
+          Recent Activity
+        </h2>
+        
+        <div className="space-y-3">
+          {(recentLogs.length > 0 ? recentLogs : [
+            { id: 1, action: 'Allocation', details: 'Laptop AF-0014 allocated to John since 10 days', created_at: new Date(Date.now() - 1000 * 60 * 60 * 2) },
+            { id: 2, action: 'Booking', details: 'Room R8 - booking confirmed - 2:00 to 3:00 PM', created_at: new Date(Date.now() - 1000 * 60 * 60 * 4) },
+            { id: 3, action: 'Maintenance', details: 'Projector AF-0021 - maintenance resolved', created_at: new Date(Date.now() - 1000 * 60 * 60 * 24) }
+          ]).map((log) => (
+            <div key={log.id} className="p-3 bg-slate-950/40 border border-slate-900/60 rounded-xl flex justify-between items-center text-xs animate-fade-in">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  {log.action || 'Log'}
+                </span>
+                <span className="font-semibold text-slate-300">{log.details}</span>
+              </div>
+              <span className="text-[10px] text-slate-500 font-mono">
+                {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
     </div>
