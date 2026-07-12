@@ -8,6 +8,7 @@ import orgRoutes from './routes/orgRoutes.js';
 import assetRoutes from './routes/assetRoutes.js';
 import allocationRoutes from './routes/allocationRoutes.js';
 import resourceRoutes from './routes/resourceRoutes.js';
+import maintenanceRoutes from './routes/maintenanceRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 
 // Load environment variables
@@ -30,6 +31,7 @@ app.use('/api/org', orgRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/allocations', allocationRoutes);
 app.use('/api/resources', resourceRoutes);
+app.use('/api/maintenance', maintenanceRoutes);
 
 // Basic health check route
 app.get('/api/health', async (req, res, next) => {
