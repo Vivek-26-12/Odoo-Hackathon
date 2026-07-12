@@ -30,7 +30,8 @@ export const createAsset = async ({
   condition_status,
   location,
   photo_url,
-  is_shared
+  is_shared,
+  custom_fields
 }) => {
   const connection = await pool.getConnection();
   try {
@@ -39,8 +40,8 @@ export const createAsset = async ({
     const assetTag = await generateNextAssetTag(connection);
 
     const query = `
-      INSERT INTO assets (name, category_id, asset_tag, serial_number, acquisition_date, acquisition_cost, condition_status, location, photo_url, is_shared, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Available')
+      INSERT INTO assets (name, category_id, asset_tag, serial_number, acquisition_date, acquisition_cost, condition_status, location, photo_url, is_shared, custom_fields, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Available')
     `;
 
     const [result] = await connection.query(query, [
@@ -53,7 +54,8 @@ export const createAsset = async ({
       condition_status || 'New',
       location.trim(),
       photo_url || null,
-      is_shared ? 1 : 0
+      is_shared ? 1 : 0,
+      custom_fields ? JSON.stringify(custom_fields) : null
     ]);
 
     await connection.commit();
@@ -122,7 +124,10 @@ export const getAssets = async ({ search, category_id, status, location, is_shar
   query += ' ORDER BY a.id DESC';
 
   const [rows] = await pool.query(query, params);
-  return rows;
+  return rows.map(row => ({
+    ...row,
+    custom_fields: typeof row.custom_fields === 'string' ? JSON.parse(row.custom_fields) : row.custom_fields
+  }));
 };
 
 // Get single asset details
@@ -135,7 +140,12 @@ export const getAssetById = async (id) => {
     LIMIT 1
   `;
   const [rows] = await pool.query(query, [id]);
-  return rows[0] || null;
+  if (!rows[0]) return null;
+  const row = rows[0];
+  return {
+    ...row,
+    custom_fields: typeof row.custom_fields === 'string' ? JSON.parse(row.custom_fields) : row.custom_fields
+  };
 };
 
 // Log asset activity history
@@ -179,11 +189,12 @@ export const updateAsset = async (id, {
   location,
   photo_url,
   is_shared,
+  custom_fields,
   status
 }) => {
   const query = `
     UPDATE assets 
-    SET name = ?, category_id = ?, serial_number = ?, acquisition_date = ?, acquisition_cost = ?, condition_status = ?, location = ?, photo_url = ?, is_shared = ?, status = ?
+    SET name = ?, category_id = ?, serial_number = ?, acquisition_date = ?, acquisition_cost = ?, condition_status = ?, location = ?, photo_url = ?, is_shared = ?, custom_fields = ?, status = ?
     WHERE id = ?
   `;
   const [result] = await pool.query(query, [
@@ -196,6 +207,7 @@ export const updateAsset = async (id, {
     location.trim(),
     photo_url || null,
     is_shared ? 1 : 0,
+    custom_fields ? JSON.stringify(custom_fields) : null,
     status,
     id
   ]);

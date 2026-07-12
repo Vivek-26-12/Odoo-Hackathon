@@ -115,6 +115,7 @@ const initDatabase = async () => {
         location VARCHAR(255) NOT NULL,
         photo_url VARCHAR(500) DEFAULT NULL,
         is_shared BOOLEAN DEFAULT FALSE,
+        custom_fields JSON DEFAULT NULL,
         status ENUM('Available', 'Allocated', 'Reserved', 'Under Maintenance', 'Lost', 'Retired', 'Disposed') DEFAULT 'Available',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

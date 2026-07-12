@@ -19,8 +19,18 @@ export const registerAsset = async (req, res, next) => {
       condition_status,
       location,
       photo_url,
-      is_shared
+      is_shared,
+      custom_fields
     } = req.body;
+
+    let parsedCustomFields = custom_fields;
+    if (typeof custom_fields === 'string') {
+      try {
+        parsedCustomFields = JSON.parse(custom_fields);
+      } catch (err) {
+        parsedCustomFields = null;
+      }
+    }
 
     // Validate required fields
     if (!name || !category_id || !serial_number || !acquisition_date || !acquisition_cost || !location) {
@@ -43,7 +53,8 @@ export const registerAsset = async (req, res, next) => {
         condition_status,
         location,
         photo_url,
-        is_shared
+        is_shared,
+        custom_fields: parsedCustomFields
       });
 
       // Log asset activity history
@@ -133,8 +144,18 @@ export const editAsset = async (req, res, next) => {
       location,
       photo_url,
       is_shared,
+      custom_fields,
       status
     } = req.body;
+
+    let parsedCustomFields = custom_fields;
+    if (typeof custom_fields === 'string') {
+      try {
+        parsedCustomFields = JSON.parse(custom_fields);
+      } catch (err) {
+        parsedCustomFields = null;
+      }
+    }
 
     if (!name || !category_id || !serial_number || !acquisition_date || !acquisition_cost || !location || !status) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields.' });
@@ -161,6 +182,7 @@ export const editAsset = async (req, res, next) => {
         location,
         photo_url,
         is_shared,
+        custom_fields: parsedCustomFields,
         status
       });
 
