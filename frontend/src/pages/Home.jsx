@@ -1,35 +1,35 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Shield, Key, Mail, RefreshCw, Cpu, CheckCircle } from 'lucide-react';
+import { Shield, Key, Mail, RefreshCw, Cpu, CheckCircle, Boxes, Calendar, Wrench, ClipboardCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { Link as RouterLink } from 'react-router-dom';
 
 const Home = () => {
   const { user } = useAuth();
 
   const features = [
     {
-      title: 'JWT Authentication',
-      desc: 'Stateless access token authorization for secure private endpoints.',
-      icon: Key,
-      color: 'text-indigo-400 bg-indigo-500/10'
-    },
-    {
-      title: 'Email OTP Verification',
-      desc: 'Automatic email verification powered by Gmail SMTP via Nodemailer.',
-      icon: Mail,
+      title: 'Structured Asset Lifecycle',
+      desc: 'Track equipment through Available, Allocated, Reserved, Maintenance, Lost, Retired, and Disposed states.',
+      icon: Boxes,
       color: 'text-purple-400 bg-purple-500/10'
     },
     {
-      title: 'Security Hardened',
-      desc: 'Bcrypt password hashing, Helmet HTTP headers, CORS configurations, and Rate Limiting.',
-      icon: Shield,
-      color: 'text-emerald-400 bg-emerald-500/10'
+      title: 'Resource Booking Calendars',
+      desc: 'Book shared office spaces, vehicles, and limited resources with transactional overlap validations.',
+      icon: Calendar,
+      color: 'text-indigo-400 bg-indigo-500/10'
     },
     {
-      title: 'Responsive Theme',
-      desc: 'Tailwind styling featuring modern glassmorphism, glowing micro-animations, and full mobile support.',
-      icon: RefreshCw,
-      color: 'text-pink-400 bg-pink-500/10'
+      title: 'Maintenance Approvals',
+      desc: 'Route equipment repair tickets through a workflow containing approvals, technician logs, and resolution releases.',
+      icon: Wrench,
+      color: 'text-orange-400 bg-orange-500/10'
+    },
+    {
+      title: 'Periodic Audit Campaigns',
+      desc: 'Schedule audit cycles, assign auditors, verify inventory on-site, and auto-flag discrepancies.',
+      icon: ClipboardCheck,
+      color: 'text-emerald-400 bg-emerald-500/10'
     }
   ];
 
@@ -42,38 +42,38 @@ const Home = () => {
         {/* Badge */}
         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-950/50 border border-purple-500/30 rounded-full text-xs font-semibold text-purple-300 mb-6">
           <Cpu className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '3s' }} />
-          Odoo Hackathon Starter Template
+          AssetFlow ERP Platform
         </div>
 
         {/* Title */}
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
           <span className="block bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-            Secure Authentication
+            Simplify & Digitize
           </span>
           <span className="block mt-2 bg-gradient-to-r from-brand-400 to-indigo-400 bg-clip-text text-transparent">
-            Made Stateless & Beautiful
+            Your Organization's Physical Assets
           </span>
         </h1>
 
         {/* Description */}
         <p className="text-base md:text-lg text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-          A production-quality full stack authentication system. Complete with OTP-based verification, password recovery, secure route protection, and dynamic Glassmorphism styling.
+          Centralized resource booking, dynamic category schemas, role-based workflows, and chronological audit histories. Hardened for high-concurrency conflict validations.
         </p>
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           {user ? (
-            <Link to="/dashboard" className="btn-primary w-full sm:w-auto px-8 py-3.5 text-base">
+            <RouterLink to="/dashboard" className="btn-primary w-full sm:w-auto px-8 py-3.5 text-base">
               Go to Dashboard
-            </Link>
+            </RouterLink>
           ) : (
             <>
-              <Link to="/register" className="btn-primary w-full sm:w-auto px-8 py-3.5 text-base">
-                Get Started
-              </Link>
-              <Link to="/login" className="btn-secondary w-full sm:w-auto px-8 py-3.5 text-base">
+              <RouterLink to="/register" className="btn-primary w-full sm:w-auto px-8 py-3.5 text-base">
+                Get Started (Employee Signup)
+              </RouterLink>
+              <RouterLink to="/login" className="btn-secondary w-full sm:w-auto px-8 py-3.5 text-base">
                 Sign In
-              </Link>
+              </RouterLink>
             </>
           )}
         </div>
@@ -82,7 +82,7 @@ const Home = () => {
       {/* Features Grid */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full mb-16 z-10">
         <h2 className="text-xl font-bold text-center text-slate-300 mb-8 tracking-wider uppercase">
-          Engine Architecture & Features
+          Key ERP Management Modules
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feat, idx) => {
