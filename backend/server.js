@@ -70,13 +70,19 @@ const startServer = async () => {
     console.log('✔ Successfully verified database connection pool connectivity.');
     connection.release();
 
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-    });
+    if (process.env.NODE_ENV !== 'test') {
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+      });
+    }
   } catch (error) {
     console.error('❌ Critical database connection failure:', error.message);
-    process.exit(1);
+    if (process.env.NODE_ENV !== 'test') {
+      process.exit(1);
+    }
   }
 };
 
 startServer();
+
+export default app;

@@ -11,6 +11,7 @@ const initDatabase = async () => {
     
     console.log('🧹 Dropping existing tables for a clean schema reset...');
     const tablesToDrop = [
+      'asset_history',
       'activity_logs',
       'notifications',
       'audit_assets',
@@ -124,6 +125,22 @@ const initDatabase = async () => {
     `;
     await connection.query(createAssetsTableQuery);
     console.log('✔ "assets" table is verified.');
+
+    // 4.5. Asset History Table
+    const createAssetHistoryTableQuery = `
+      CREATE TABLE IF NOT EXISTS asset_history (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        asset_id INT NOT NULL,
+        user_id INT NOT NULL,
+        action_type VARCHAR(100) NOT NULL,
+        details TEXT DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (asset_id) REFERENCES assets (id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+    await connection.query(createAssetHistoryTableQuery);
+    console.log('✔ "asset_history" table is verified.');
 
     // 5. Asset Allocations Table
     const createAllocationsTableQuery = `

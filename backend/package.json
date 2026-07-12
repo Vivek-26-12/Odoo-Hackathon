@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "db:init": "node database/init.js"
+    "db:init": "node database/init.js",
+    "test": "cross-env NODE_ENV=test mocha tests/**/*.test.js --timeout 15000 --exit"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -23,6 +24,10 @@
     "nodemailer": "^6.9.13"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "chai": "^6.2.2",
+    "cross-env": "^10.1.0",
+    "mocha": "^11.7.6",
+    "nodemon": "^3.1.0",
+    "supertest": "^7.2.2"
   }
 }
