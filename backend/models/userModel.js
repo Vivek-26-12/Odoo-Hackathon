@@ -9,7 +9,7 @@ export const findUserByEmail = async (email) => {
 
 // Find a user by their ID
 export const findUserById = async (id) => {
-  const query = 'SELECT id, full_name, email, is_verified, created_at, updated_at FROM users WHERE id = ? LIMIT 1';
+  const query = 'SELECT id, full_name, email, is_verified, role, status, department_id, created_at, updated_at FROM users WHERE id = ? LIMIT 1';
   const [rows] = await pool.query(query, [id]);
   return rows[0] || null;
 };

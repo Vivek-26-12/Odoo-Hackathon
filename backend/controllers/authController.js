@@ -168,6 +168,14 @@ export const login = async (req, res, next) => {
       });
     }
 
+    // Check if user is active
+    if (user.status === 'inactive') {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been deactivated. Please contact an administrator.'
+      });
+    }
+
     // Create JWT token
     const token = jwt.sign(
       { id: user.id },
@@ -184,6 +192,9 @@ export const login = async (req, res, next) => {
         full_name: user.full_name,
         email: user.email,
         is_verified: user.is_verified,
+        role: user.role,
+        status: user.status,
+        department_id: user.department_id,
         created_at: user.created_at
       }
     });
